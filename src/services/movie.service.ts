@@ -1,54 +1,76 @@
 import Movie from "@/models/Movie";
+import { slugify } from "@/utils/slugify";
 
-export const MovieService = {
-  // GET ALL: Hỗ trợ tìm kiếm theo text index (title)
-  getAll: async (search: string, page: number, limit: number) => {
-    const skip = (page - 1) * limit;
+export const createMovieService = async (data: any) => {
+  try {
+    const {
+      title,
+      description,
+      thumbnail,
+      backdrop,
+      video_url,
+      genres,
+      duration,
+      publish_date,
+      is_published,
+    } = data;
 
-    // Nếu có search, dùng regex để tìm kiếm linh hoạt trong title
-    const query = search ? { title: { $regex: search, $options: "i" } } : {};
+    if (!title) {
+      throw new Error("Title is required");
+    }
 
-    const [movies, total] = await Promise.all([
-      Movie.find(query)
-        .populate("genres") // Khớp với ref: "Genre" trong model
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 }),
-      Movie.countDocuments(query),
-    ]);
+    // Tạo slug từ title
+    let slug = slugify(title);
 
-    return { movies, total };
-  },
+    // Kiểm tra slug trùng
+    const existingSlug = await Movie.findOne({ slug });
 
-  // GET DETAIL: Tìm theo ID hoặc có thể mở rộng tìm theo Slug
-  getById: async (id: string) => {
-    const movie = await Movie.findById(id).populate("genres");
-    if (!movie) throw new Error("Movie not found");
+    if (existingSlug) {
+      slug = `${slug}-${Date.now()}`;
+    }
+
+    const movie = await Movie.create({
+      title,
+      description,
+      thumbnail,
+      backdrop,
+      video_url,
+      genres,
+      duration,
+      slug,
+      publish_date,
+      is_published,
+    });
+
     return movie;
-  },
+  } catch (error) {
+    throw error;
+  }
+};
 
-  // CREATE: Không cần truyền slug, model sẽ tự tạo từ title
-  create: async (data: any) => {
-    // data nên chứa: title, description, thumbnail, backdrop, video_url, genres (array ID), duration...
-    return await Movie.create(data);
-  },
+// GET ALL MOVIES
+export const getAllMoviesService = async () => {
+  try {
+    const movies = await Movie.find()
+      .populate("genres")
+      .sort({ createdAt: -1 });
 
-  // UPDATE: Cập nhật thông tin và tự động update slug nếu title thay đổi
-  update: async (id: string, data: any) => {
-    const movie = await Movie.findById(id);
-    if (!movie) throw new Error("Movie not found");
+    return movies;
+  } catch (error) {
+    throw error;
+  }
+};
 
-    // Gán dữ liệu mới
-    Object.assign(movie, data);
+// GET MOVIE BY SLUG
+export const getMovieBySlugService = async (slug: string) => {
+  try {
+    console.log("API slug:", slug);
 
-    // Lưu bằng .save() để kích hoạt middleware pre("validate") tạo lại slug
-    return await movie.save();
-  },
+    const movie = await Movie.findOne({ slug }).populate("genres");
 
-  // DELETE
-  delete: async (id: string) => {
-    const movie = await Movie.findByIdAndDelete(id);
-    if (!movie) throw new Error("Movie not found");
-    return true;
-  },
+    console.log("DB result:", movie);
+    return movie;
+  } catch (error) {
+    throw error;
+  }
 };

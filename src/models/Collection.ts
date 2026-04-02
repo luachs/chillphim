@@ -10,6 +10,7 @@ const collectionSchema = new Schema(
   { timestamps: true },
 );
 
-// Dùng models.Collection để tránh tạo lại model khi Next.js hot-reload
+collectionSchema.index({ slug: 1 });
+
 const Collection = models.Collection || model("Collection", collectionSchema);
 export default Collection;
