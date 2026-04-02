@@ -1,4 +1,5 @@
 import Movie from "@/models/Movie";
+import "@/models/Genre";
 import { slugify } from "@/utils/slugify";
 
 export const createMovieService = async (data: any) => {

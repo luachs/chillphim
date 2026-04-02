@@ -1,18 +1,28 @@
 import { verifyToken } from "@/lib/jwt";
 
 export const authMiddleware = (req: Request) => {
-  const authHeader = req.headers.get("authorization");
+  const cookieHeader = req.headers.get("cookie");
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!cookieHeader) {
     throw new Error("Unauthorized");
   }
 
-  const token = authHeader.split(" ")[1];
+  // lấy token từ cookie
+  const cookies = Object.fromEntries(
+    cookieHeader.split("; ").map((c) => c.split("=")),
+  );
+
+  const token = cookies.token;
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
 
   const decoded = verifyToken(token);
+
   if (!decoded) {
     throw new Error("Invalid token");
   }
 
-  return decoded; // chứa userId, role
+  return decoded;
 };

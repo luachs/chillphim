@@ -28,6 +28,8 @@ async function seedAdmin() {
       console.log(
         "🚀 [Seed]: Admin account created (admin@gmail.com / admin123)",
       );
+    } else {
+      console.log("ℹ️ [Seed]: Admin already exists");
     }
   } catch (error) {
     console.error("❌ [Seed Error]:", error);
@@ -35,19 +37,30 @@ async function seedAdmin() {
 }
 
 export async function connectDB() {
-  if (cached.conn) return cached.conn;
+  if (cached.conn) {
+    console.log("✅ [MongoDB]: Already connected");
+    return cached.conn;
+  }
 
   if (!cached.promise) {
+    console.log("⌛ [MongoDB]: Connecting...");
     cached.promise = mongoose.connect(MONGO_URI, {
       dbName: "chillphim",
     });
   }
 
-  cached.conn = await cached.promise;
-  (global as any).mongoose = cached;
+  try {
+    cached.conn = await cached.promise;
+    console.log("✅ [MongoDB]: Connected successfully!");
 
-  // Gọi hàm seedAdmin sau khi kết nối thành công
-  await seedAdmin();
+    (global as any).mongoose = cached;
 
-  return cached.conn;
+    // Gọi hàm seedAdmin sau khi kết nối thành công
+    await seedAdmin();
+
+    return cached.conn;
+  } catch (error) {
+    console.error("❌ [MongoDB]: Connection failed", error);
+    throw error;
+  }
 }

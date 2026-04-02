@@ -1,5 +1,5 @@
 import mongoose, { Schema, models } from "mongoose";
-
+import Genre from "./Genre";
 const movieSchema = new Schema(
   {
     title: { type: String, required: true },

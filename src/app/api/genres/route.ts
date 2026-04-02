@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+import { authMiddleware } from "@/middlewares/auth.middleware";
 import { getAllGenres, createGenre } from "@/services/genre.service";
 
 // GET /api/genres
@@ -24,6 +25,17 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     await connectDB();
+
+    // 🔐 Kiểm tra login
+    const user = authMiddleware(req);
+
+    // 🔐 Chỉ admin mới được tạo genre
+    if (user.role !== "admin") {
+      return NextResponse.json(
+        { message: "Forbidden: Admin only" },
+        { status: 403 },
+      );
+    }
 
     const body = await req.json();
 
