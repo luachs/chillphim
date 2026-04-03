@@ -8,9 +8,10 @@ interface MovieForm {
   thumbnail: string;
   backdrop: string;
   video_url: string;
-  genres: string; // Mảng chứa các ID của thể loại
+  genres: string[]; // Mảng chứa các ID của thể loại
   duration: string | number;
   publish_date: string;
+  is_published: boolean;
 }
 
 // 2. Định nghĩa cấu trúc cho Genre từ API trả về
@@ -26,9 +27,10 @@ export default function CreateMovie() {
     thumbnail: "",
     backdrop: "",
     video_url: "",
-    genres: "",
+    genres: [],
     duration: "",
     publish_date: "",
+    is_published: true,
   });
 
   const [genreList, setGenreList] = useState<Genre[]>([]);
@@ -39,7 +41,7 @@ export default function CreateMovie() {
   const [loadingUpload, setLoadingUpload] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/genres")
+    fetch("/api/genres")
       .then((res) => res.json())
       .then((json) => {
         // Log để kiểm tra (như trong ảnh bạn chụp)
@@ -113,10 +115,15 @@ export default function CreateMovie() {
   };
 
   const handleGenreSelect = (id: string) => {
-    setForm((prev) => ({
-      ...prev,
-      genres: id, // Gán trực tiếp ID thể loại được chọn
-    }));
+    setForm((prev) => {
+      const exists = prev.genres.includes(id);
+      return {
+        ...prev,
+        genres: exists
+          ? prev.genres.filter((gid) => gid !== id)
+          : [...prev.genres, id],
+      };
+    });
   };
 
   // submit
@@ -129,7 +136,7 @@ export default function CreateMovie() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/movies", {
+      const res = await fetch("/api/movies", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -153,8 +160,10 @@ export default function CreateMovie() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Create Movie</h1>
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <h1 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-zinc-50">
+        Admin - Create Movie
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -162,7 +171,7 @@ export default function CreateMovie() {
           value={form.title}
           placeholder="Title"
           onChange={handleChange}
-          className="w-full border p-2 text-black"
+          className="w-full rounded-md border border-zinc-200 bg-white/30 p-2 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-50"
         />
 
         <textarea
@@ -170,7 +179,7 @@ export default function CreateMovie() {
           value={form.description}
           placeholder="Description"
           onChange={handleChange}
-          className="w-full border p-2 text-black"
+          className="w-full rounded-md border border-zinc-200 bg-white/30 p-2 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-50"
         />
 
         {/* Upload Thumbnail */}
@@ -183,7 +192,12 @@ export default function CreateMovie() {
               setThumbnailFile(e.target.files ? e.target.files[0] : null)
             }
           />
-          {form.thumbnail && <img src={form.thumbnail} className="w-40 mt-2" />}
+          {form.thumbnail && (
+            <img
+              src={form.thumbnail}
+              className="w-40 mt-2 rounded-lg border border-zinc-200/60 dark:border-zinc-800/60"
+            />
+          )}
         </div>
 
         {/* Upload Backdrop */}
@@ -196,13 +210,18 @@ export default function CreateMovie() {
               setBackdropFile(e.target.files ? e.target.files[0] : null)
             }
           />
-          {form.backdrop && <img src={form.backdrop} className="w-full mt-2" />}
+          {form.backdrop && (
+            <img
+              src={form.backdrop}
+              className="w-full mt-2 rounded-lg border border-zinc-200/60 dark:border-zinc-800/60"
+            />
+          )}
         </div>
 
         <button
           type="button"
           onClick={handleUploadImages}
-          className="bg-green-500 text-white px-4 py-2 rounded">
+          className="bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded">
           {loadingUpload ? "Uploading..." : "Upload Images"}
         </button>
 
@@ -211,29 +230,32 @@ export default function CreateMovie() {
           value={form.video_url}
           placeholder="Video URL"
           onChange={handleChange}
-          className="w-full border p-2 text-black"
+          className="w-full rounded-md border border-zinc-200 bg-white/30 p-2 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-50"
         />
 
         {/* Genres checkbox */}
         <div>
-          <p className="text-sm font-semibold mb-2">Thể loại (Chọn 1)</p>
+          <p className="text-sm font-semibold mb-2">
+            Thể loại (Chọn nhiều)
+          </p>
           <div className="grid grid-cols-2 gap-2">
             {genreList.map((g) => (
               <label
                 key={g._id}
-                className={`flex items-center gap-2 p-2 border rounded cursor-pointer transition ${
-                  form.genres === g._id
+                className={`flex items-center gap-2 rounded cursor-pointer border p-2 transition ${
+                  form.genres.includes(g._id)
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-200"
                 }`}>
                 <input
-                  type="radio"
-                  name="genre"
-                  checked={form.genres === g._id}
+                  type="checkbox"
+                  checked={form.genres.includes(g._id)}
                   onChange={() => handleGenreSelect(g._id)}
-                  className="w-4 h-4 text-blue-600"
+                  className="h-4 w-4 accent-blue-600"
                 />
-                <span className="text-sm text-black">{g.name}</span>
+                <span className="text-sm text-zinc-900 dark:text-zinc-50">
+                  {g.name}
+                </span>
               </label>
             ))}
           </div>
@@ -245,7 +267,7 @@ export default function CreateMovie() {
           value={form.duration}
           placeholder="Duration (minutes)"
           onChange={handleChange}
-          className="w-full border p-2 text-black"
+          className="w-full rounded-md border border-zinc-200 bg-white/30 p-2 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-50"
         />
 
         <input
@@ -253,12 +275,12 @@ export default function CreateMovie() {
           type="date"
           value={form.publish_date}
           onChange={handleChange}
-          className="w-full border p-2 text-black"
+          className="w-full rounded-md border border-zinc-200 bg-white/30 p-2 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-50"
         />
 
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition">
+          className="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded transition">
           Create Movie
         </button>
       </form>

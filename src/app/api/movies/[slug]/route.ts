@@ -27,11 +27,13 @@ export async function GET(
       success: true,
       data: movie,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch movie";
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message,
       },
       { status: 500 },
     );

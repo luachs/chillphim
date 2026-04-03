@@ -4,7 +4,7 @@ import { signToken } from "@/lib/jwt";
 
 export const UserService = {
   // Logic Đăng ký
-  register: async (data: any) => {
+  register: async (data: { username: string; email: string; password: string }) => {
     const { username, email, password } = data;
 
     const existingUser = await User.findOne({ email });
@@ -22,7 +22,7 @@ export const UserService = {
   },
 
   // Logic Đăng nhập
-  login: async (data: any) => {
+  login: async (data: { email: string; password: string }) => {
     const { email, password } = data;
 
     const user = await User.findOne({ email });

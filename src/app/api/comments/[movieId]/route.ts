@@ -15,11 +15,13 @@ export async function GET(
       success: true,
       data: comments,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch comments";
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message,
       },
       { status: 400 },
     );

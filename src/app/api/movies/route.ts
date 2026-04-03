@@ -20,13 +20,15 @@ export async function POST(req: NextRequest) {
       success: true,
       data: movie,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to create movie";
     console.log(error);
 
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message,
       },
       { status: 500 },
     );
@@ -44,11 +46,13 @@ export async function GET() {
       success: true,
       data: movies,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch movies";
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message,
       },
       { status: 500 },
     );

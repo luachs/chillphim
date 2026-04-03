@@ -9,7 +9,17 @@ if (!MONGO_URI) {
 }
 
 // Tránh connect lại nhiều lần (Next.js dev reload)
-let cached = (global as any).mongoose || { conn: null, promise: null };
+type MongooseCache = {
+  conn: unknown;
+  promise: Promise<unknown> | null;
+};
+
+const globalWithMongoose = globalThis as unknown as {
+  mongoose?: MongooseCache;
+};
+
+const cached: MongooseCache =
+  globalWithMongoose.mongoose ?? { conn: null, promise: null };
 
 // Hàm phụ để tạo Admin
 async function seedAdmin() {
@@ -36,7 +46,7 @@ async function seedAdmin() {
   }
 }
 
-export async function connectDB() {
+export async function connectDB(): Promise<unknown> {
   if (cached.conn) {
     console.log("✅ [MongoDB]: Already connected");
     return cached.conn;
@@ -46,14 +56,14 @@ export async function connectDB() {
     console.log("⌛ [MongoDB]: Connecting...");
     cached.promise = mongoose.connect(MONGO_URI, {
       dbName: "chillphim",
-    });
+    }) as unknown as Promise<unknown>;
   }
 
   try {
     cached.conn = await cached.promise;
     console.log("✅ [MongoDB]: Connected successfully!");
 
-    (global as any).mongoose = cached;
+    globalWithMongoose.mongoose = cached;
 
     // Gọi hàm seedAdmin sau khi kết nối thành công
     await seedAdmin();

@@ -15,7 +15,7 @@ export async function GET() {
       success: true,
       data: collections,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 },
@@ -36,11 +36,13 @@ export async function POST(req: Request) {
       success: true,
       data: collection,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Server error";
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Server error",
+        message,
       },
       { status: 400 },
     );

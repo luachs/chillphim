@@ -23,11 +23,13 @@ export async function POST(req: Request) {
       success: true,
       ...result,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to toggle favorite";
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message,
       },
       { status: 400 },
     );
@@ -55,7 +57,7 @@ export async function GET(req: Request) {
       success: true,
       data: favorites,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 },

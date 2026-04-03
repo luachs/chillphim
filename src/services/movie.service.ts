@@ -2,7 +2,17 @@ import Movie from "@/models/Movie";
 import "@/models/Genre";
 import { slugify } from "@/utils/slugify";
 
-export const createMovieService = async (data: any) => {
+export const createMovieService = async (data: {
+  title: string;
+  description?: string;
+  thumbnail: string;
+  backdrop: string;
+  video_url: string;
+  genres: string[];
+  duration: number;
+  publish_date: string | Date;
+  is_published?: boolean;
+}) => {
   try {
     const {
       title,

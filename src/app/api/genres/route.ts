@@ -13,7 +13,7 @@ export async function GET() {
       success: true,
       data: genres,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Error fetching genres" },
       { status: 500 },
@@ -47,9 +47,11 @@ export async function POST(req: Request) {
       success: true,
       data: genre,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to create genre";
     return NextResponse.json(
-      { success: false, message: error.message },
+      { success: false, message },
       { status: 400 },
     );
   }

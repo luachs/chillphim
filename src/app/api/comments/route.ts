@@ -23,11 +23,13 @@ export async function POST(req: Request) {
       success: true,
       data: comment,
     });
-  } catch (error: any) {
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to create comment";
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message,
       },
       { status: 400 },
     );

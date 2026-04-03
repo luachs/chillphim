@@ -12,7 +12,9 @@ export async function POST(req: Request) {
       { message: "Register success", user },
       { status: 201 },
     );
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 400 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Register failed";
+    return NextResponse.json({ message }, { status: 400 });
   }
 }

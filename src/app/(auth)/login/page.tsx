@@ -3,25 +3,34 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { setStoredAuthUser } from "@/lib/auth-client";
+
+type LoginForm = {
+  email: string;
+  password: string;
+};
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<LoginForm>({
     email: "",
     password: "",
   });
 
   const [message, setMessage] = useState("");
 
-  const handleChange = (e: any) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -38,22 +47,36 @@ export default function LoginPage() {
 
       if (!res.ok) throw new Error(data.message);
 
+      if (data?.user?._id) {
+        setStoredAuthUser({
+          _id: data.user._id,
+          username: data.user.username,
+          email: data.user.email,
+          role: data.user.role,
+          avatar: data.user.avatar,
+        });
+      }
+
       setMessage("Login success!");
 
       setTimeout(() => {
         router.push("/");
       }, 800);
-    } catch (error: any) {
-      setMessage(error.message);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Đăng nhập thất bại";
+      setMessage(message);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-md w-96 space-y-4">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
+        className="w-full max-w-md space-y-4 rounded-2xl border border-zinc-200/60 bg-white/30 p-8 shadow-sm backdrop-blur dark:border-zinc-800/60 dark:bg-zinc-950/30">
+        <h2 className="text-2xl font-bold text-center text-zinc-900 dark:text-zinc-50">
+          Login
+        </h2>
 
         <input
           type="email"
@@ -62,7 +85,7 @@ export default function LoginPage() {
           value={form.email}
           onChange={handleChange}
           required
-          className="w-full border p-2 rounded"
+          className="w-full rounded-md border border-zinc-200 bg-white/30 p-2 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-50"
         />
 
         <input
@@ -72,12 +95,12 @@ export default function LoginPage() {
           value={form.password}
           onChange={handleChange}
           required
-          className="w-full border p-2 rounded"
+          className="w-full rounded-md border border-zinc-200 bg-white/30 p-2 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-50"
         />
 
         <button
           type="submit"
-          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">
+          className="w-full rounded-md bg-emerald-500 p-2 text-white hover:bg-emerald-400">
           Login
         </button>
 
@@ -85,9 +108,11 @@ export default function LoginPage() {
           <p className="text-center text-sm text-red-500">{message}</p>
         )}
 
-        <p className="text-center text-sm">
-          Don't have account?{" "}
-          <Link href="/register" className="text-blue-500">
+        <p className="text-center text-sm text-zinc-600 dark:text-zinc-300">
+          Don&apos;t have account?{" "}
+          <Link
+            href="/register"
+            className="text-blue-500 hover:underline dark:text-blue-400">
             Register
           </Link>
         </p>

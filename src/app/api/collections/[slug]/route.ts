@@ -22,7 +22,7 @@ export async function GET(
       success: true,
       data: collection,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 },

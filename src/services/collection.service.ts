@@ -3,7 +3,7 @@ import { slugify } from "@/utils/slugify";
 
 // helper tạo slug unique
 const generateUniqueSlug = async (name: string) => {
-  let baseSlug = slugify(name);
+  const baseSlug = slugify(name);
   let slug = baseSlug;
   let count = 1;
 
