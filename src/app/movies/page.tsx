@@ -21,9 +21,9 @@ export default function MovieListPage() {
   const [movies, setMovies] = React.useState<Movie[]>([]);
   const [genres, setGenres] = React.useState<Genre[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [selectedGenreId, setSelectedGenreId] = React.useState<
-    string | "all"
-  >("all");
+  const [selectedGenreId, setSelectedGenreId] = React.useState<string | "all">(
+    "all",
+  );
 
   React.useEffect(() => {
     Promise.all([
@@ -44,9 +44,7 @@ export default function MovieListPage() {
   const filtered =
     selectedGenreId === "all"
       ? movies
-      : movies.filter((m) =>
-          m.genres.some((g) => g._id === selectedGenreId),
-        );
+      : movies.filter((m) => m.genres.some((g) => g._id === selectedGenreId));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -54,9 +52,6 @@ export default function MovieListPage() {
         <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
           Movies
         </h1>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Hover để hiện nút Play, click để mở trang chi tiết.
-        </p>
       </div>
 
       <div className="mb-8 flex flex-wrap gap-2">
