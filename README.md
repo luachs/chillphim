@@ -4,6 +4,8 @@ ChillPhim là một dự án web quản lý phim, cho phép admin tạo phim, up
 
 Dự án được xây dựng nhằm mục đích học tập và thực hành các công nghệ web hiện đại như Next.js, MongoDB, Cloudinary và JWT Authentication.
 
+REVIEW NHANH : http://52.253.121.227/movies
+
 ---
 
 # 🧰 Công nghệ sử dụng
