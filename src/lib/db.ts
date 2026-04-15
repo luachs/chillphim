@@ -1,75 +1,45 @@
 import mongoose from "mongoose";
-import User from "@/models/User";
-import bcrypt from "bcryptjs";
 
 const MONGO_URI = process.env.MONGO_URI!;
 
-if (!MONGO_URI) {
-  throw new Error("Please define MONGO_URI in .env.local");
+if (!MONGO_URI) throw new Error("Please define MONGO_URI in .env.local");
+
+// Định nghĩa interface để TypeScript không than phiền
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
 }
 
-// Tránh connect lại nhiều lần (Next.js dev reload)
-type MongooseCache = {
-  conn: unknown;
-  promise: Promise<unknown> | null;
-};
-
-const globalWithMongoose = globalThis as unknown as {
-  mongoose?: MongooseCache;
-};
-
-const cached: MongooseCache =
-  globalWithMongoose.mongoose ?? { conn: null, promise: null };
-
-// Hàm phụ để tạo Admin
-async function seedAdmin() {
-  try {
-    const adminEmail = "admin@gmail.com";
-    const existingAdmin = await User.findOne({ email: adminEmail });
-
-    if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash("admin123", 10);
-      await User.create({
-        username: "System Admin",
-        email: adminEmail,
-        password: hashedPassword,
-        role: "admin", // Đảm bảo model User có field role
-      });
-      console.log(
-        "🚀 [Seed]: Admin account created (admin@gmail.com / admin123)",
-      );
-    } else {
-      console.log("ℹ️ [Seed]: Admin already exists");
-    }
-  } catch (error) {
-    console.error("❌ [Seed Error]:", error);
-  }
+// Khai báo global variable
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: MongooseCache;
 }
 
-export async function connectDB(): Promise<unknown> {
-  if (cached.conn) {
-    console.log("✅ [MongoDB]: Already connected");
-    return cached.conn;
-  }
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+export async function connectDB() {
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     console.log("⌛ [MongoDB]: Connecting...");
-    cached.promise = mongoose.connect(MONGO_URI, {
-      dbName: "chillphim",
-    }) as unknown as Promise<unknown>;
+    cached.promise = mongoose
+      .connect(MONGO_URI, {
+        dbName: "chillphim",
+      })
+      .then((m) => m);
   }
 
   try {
     cached.conn = await cached.promise;
     console.log("✅ [MongoDB]: Connected successfully!");
-
-    globalWithMongoose.mongoose = cached;
-
-    // Gọi hàm seedAdmin sau khi kết nối thành công
-    await seedAdmin();
-
     return cached.conn;
   } catch (error) {
+    cached.promise = null;
     console.error("❌ [MongoDB]: Connection failed", error);
     throw error;
   }

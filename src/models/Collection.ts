@@ -10,7 +10,5 @@ const collectionSchema = new Schema(
   { timestamps: true },
 );
 
-collectionSchema.index({ slug: 1 });
-
 const Collection = models.Collection || model("Collection", collectionSchema);
 export default Collection;

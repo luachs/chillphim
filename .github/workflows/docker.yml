@@ -1,0 +1,60 @@
+name: CI/CD ChillPhim
+
+on:
+  push:
+    branches: ["main"] # Chạy tự động khi bạn push code vào branch main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. Đăng nhập Azure bằng Service Principal
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 2. Build & Push Image lên Azure Container Registry (ACR)
+      - name: Build and Push to ACR
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/chillphim:${{ github.sha }} .
+          docker tag ${{ secrets.ACR_NAME }}.azurecr.io/chillphim:${{ github.sha }} ${{ secrets.ACR_NAME }}.azurecr.io/chillphim:latest
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/chillphim:${{ github.sha }}
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/chillphim:latest
+
+  deploy-to-aks:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 3. Kết nối với cụm AKS
+      - name: Get AKS Context
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.RG_NAME }} --name ${{ secrets.AKS_NAME }}
+
+      # 4. Tạo Kubernetes Secret (Để app đọc được MONGO_URI, Cloudinary...)
+      - name: Create K8s Secrets
+        run: |
+          kubectl create secret generic chillphim-secrets \
+            --from-literal=MONGO_URI='${{ secrets.MONGO_URI }}' \
+            --from-literal=JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+            --from-literal=CLOUDINARY_CLOUD_NAME='${{ secrets.CLOUDINARY_CLOUD_NAME }}' \
+            --from-literal=CLOUDINARY_API_KEY='${{ secrets.CLOUDINARY_API_KEY }}' \
+            --from-literal=CLOUDINARY_API_SECRET='${{ secrets.CLOUDINARY_API_SECRET }}' \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      # 5. Deploy lên AKS bằng các file manifest trong thư mục k8s/
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s/

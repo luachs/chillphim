@@ -37,8 +37,7 @@ export async function POST(req: Request) {
       data: collection,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Server error";
+    const message = error instanceof Error ? error.message : "Server error";
     return NextResponse.json(
       {
         success: false,

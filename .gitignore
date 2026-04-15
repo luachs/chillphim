@@ -6,6 +6,8 @@
 .pnp.js
 .yarn/install-state.gz
 
+.env
+.env.*
 # testing
 /coverage
 
@@ -34,3 +36,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Chặn toàn bộ thư mục .terraform
+**/.terraform/*
+
+# Chặn các file state của terraform (để bảo mật)
+*.tfstate
+*.tfstate.backup

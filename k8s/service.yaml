@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chillphim-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: chillphim
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
