@@ -11,7 +11,15 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Next.js cần ENV trong lúc build nếu bạn có dùng biến môi trường trong code client-side
-# COPY .env.local .env.local 
+
+ENV JWT_SECRET="1ab9013125a8da03402a39f9e55c5cc69e40c5950188d6ca48ca731292d57eab"
+
+ENV MONGO_URI=mongodb+srv://nguyenthanhphat13032005_db_user:v2zeDHWekR7ccdQO@chillphim.4uioevu.mongodb.net/chillphim?retryWrites=true&w=majority&appName=chillphim
+
+ENV CLOUDINARY_CLOUD_NAME=dfuvpnrrb
+ENV CLOUDINARY_API_KEY=215814777113427
+ENV CLOUDINARY_API_SECRET=zhbMkkduVHU_In_Cbq58xmN7eDI
+
 RUN npm run build
 
 # ---------- Stage 3: Production ----------
