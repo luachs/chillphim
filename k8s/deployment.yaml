@@ -15,6 +15,7 @@ spec:
       containers:
         - name: chillphim-container
           image: chillphimacr2026phat.azurecr.io/chillphim:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:

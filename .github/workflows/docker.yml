@@ -38,12 +38,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 3. Kết nối với cụm AKS
       - name: Get AKS Context
         run: |
           az aks get-credentials --resource-group ${{ secrets.RG_NAME }} --name ${{ secrets.AKS_NAME }}
 
-      # 4. Tạo Kubernetes Secret (Để app đọc được MONGO_URI, Cloudinary...)
       - name: Create K8s Secrets
         run: |
           kubectl create secret generic chillphim-secrets \
@@ -54,7 +52,18 @@ jobs:
             --from-literal=CLOUDINARY_API_SECRET='${{ secrets.CLOUDINARY_API_SECRET }}' \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      # 5. Deploy lên AKS bằng các file manifest trong thư mục k8s/
-      - name: Deploy to AKS
+      # 🚀 APPLY YAML (tạo nếu chưa có)
+      - name: Apply K8s manifests
         run: |
           kubectl apply -f k8s/
+
+      # 🔥 QUAN TRỌNG NHẤT: UPDATE IMAGE THEO SHA
+      - name: Set image with SHA
+        run: |
+          kubectl set image deployment/chillphim \
+          chillphim=${{ secrets.ACR_NAME }}.azurecr.io/chillphim:${{ github.sha }}
+
+      # 🔥 Đảm bảo rollout chạy
+      - name: Verify rollout
+        run: |
+          kubectl rollout status deployment/chillphim
