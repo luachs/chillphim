@@ -60,10 +60,11 @@ jobs:
       # 🔥 QUAN TRỌNG NHẤT: UPDATE IMAGE THEO SHA
       - name: Set image with SHA
         run: |
-          kubectl set image deployment/chillphim \
-          chillphim=${{ secrets.ACR_NAME }}.azurecr.io/chillphim:${{ github.sha }}
+          run: |
+            kubectl set image deployment/chillphim-app \
+            chillphim-container=${{ secrets.ACR_NAME }}.azurecr.io/chillphim:${{ github.sha }}
 
       # 🔥 Đảm bảo rollout chạy
       - name: Verify rollout
         run: |
-          kubectl rollout status deployment/chillphim
+          kubectl rollout status deployment/chillphim-app
