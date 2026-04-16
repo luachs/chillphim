@@ -10,11 +10,10 @@ export function Badge({
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-full border border-zinc-200 bg-white/50 px-2.5 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-200",
+        "inline-flex items-center rounded-md border border-white/20 bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md dark:border-zinc-800/50 dark:bg-zinc-900/50",
         className,
       )}
       {...props}
     />
   );
 }
-
