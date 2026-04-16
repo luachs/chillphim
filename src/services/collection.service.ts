@@ -1,5 +1,6 @@
 import Collection from "@/models/Collection";
 import { slugify } from "@/utils/slugify";
+import "@/models/Movie";
 
 // helper tạo slug unique
 const generateUniqueSlug = async (name: string) => {
@@ -38,9 +39,21 @@ export const createCollection = async (data: {
   return newCollection;
 };
 export const getAllCollections = async () => {
-  return await Collection.find({ is_active: true })
-    .populate("movies") // nếu muốn lấy luôn movie
-    .sort({ createdAt: -1 });
+  try {
+    const collections = await Collection.find({ is_active: true })
+      .populate({
+        path: "movies",
+        select: "title thumbnail slug duration genres backdrop description",
+        options: { lean: true },
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return collections;
+  } catch (error) {
+    console.error("❌ getAllCollections error:", error);
+    return []; // ⚠️ KHÔNG throw nữa
+  }
 };
 
 export const getCollectionBySlug = async (slug: string) => {

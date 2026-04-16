@@ -23,19 +23,24 @@ if (!cached) {
 }
 
 export async function connectDB() {
-  if (cached.conn) return cached.conn;
+  // ✅ nếu đã connected rồi thì return luôn
+  if (cached.conn && mongoose.connection.readyState === 1) {
+    return cached.conn;
+  }
 
+  // ✅ nếu chưa có promise thì tạo mới
   if (!cached.promise) {
     console.log("⌛ [MongoDB]: Connecting...");
-    cached.promise = mongoose
-      .connect(MONGO_URI, {
-        dbName: "chillphim",
-      })
-      .then((m) => m);
+
+    cached.promise = mongoose.connect(MONGO_URI, {
+      dbName: "chillphim",
+      bufferCommands: false, // ⚠️ QUAN TRỌNG
+    });
   }
 
   try {
     cached.conn = await cached.promise;
+
     console.log("✅ [MongoDB]: Connected successfully!");
     return cached.conn;
   } catch (error) {
