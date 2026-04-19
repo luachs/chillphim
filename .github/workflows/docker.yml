@@ -2,7 +2,8 @@ name: CI/CD ChillPhim
 
 on:
   push:
-    branches: ["main"] # Chạy tự động khi bạn push code vào branch main
+    branches:
+      - "*" # Chạy tự động khi bạn push code vào branch main
 
 jobs:
   build-and-push:
