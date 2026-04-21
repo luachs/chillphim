@@ -1,0 +1,32 @@
+name: "Azure Control: Start/Stop AKS"
+
+on:
+  workflow_dispatch: # Đây là "công tắc" để hiện nút bấm trên giao diện
+    inputs:
+      action:
+        description: "Chọn hành động"
+        required: true
+        default: "stop"
+        type: choice
+        options:
+          - start
+          - stop
+
+jobs:
+  control-aks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Execute Action
+        run: |
+          if [ "${{ github.event.inputs.action }}" == "stop" ]; then
+            echo "Đang tắt cụm AKS để tiết kiệm tiền..."
+            az aks stop --name ${{ secrets.AKS_NAME }} --resource-group ${{ secrets.RG_NAME }}
+          else
+            echo "Đang khởi động lại cụm AKS..."
+            az aks start --name ${{ secrets.AKS_NAME }} --resource-group ${{ secrets.RG_NAME }}
+          fi
