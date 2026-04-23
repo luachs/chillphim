@@ -54,6 +54,14 @@ resource "azurerm_log_analytics_workspace" "log" {
   retention_in_days   = 30
 }
 
+resource "azurerm_subnet" "gw_subnet" {
+  name                 = "gateway-subnet"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.2.0/24"] # Dải IP mới không trùng với 10.0.1.0 của AKS
+}
+
+
 # Fix Lỗi 1 & 2: Cấu hình Subnet, Network Plugin và Version
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_name
@@ -61,6 +69,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = "chillphimaks"
   
+  ingress_application_gateway {
+    gateway_name = "chillphim-appgw"
+    subnet_id    = azurerm_subnet.gw_subnet.id
+  }
+
   # Fix Lỗi 2: Dùng biến cho Kubernetes version
   kubernetes_version  = var.kubernetes_version
   sku_tier            = "Free"
@@ -104,4 +117,13 @@ resource "azurerm_role_assignment" "aks_to_acr" {
   role_definition_name             = "AcrPull"
   scope                            = azurerm_container_registry.acr.id
   skip_service_principal_aad_check = true
+}
+
+
+resource "azurerm_public_ip" "gw_pip" {
+  name                = "chillphim-gw-ip"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  allocation_method   = "Static"
+  sku                 = "Standard" # AGW v2 bắt buộc dùng Standard IP
 }

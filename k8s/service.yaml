@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: chillphim-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: chillphim
   ports:
