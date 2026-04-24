@@ -5,13 +5,12 @@ variable "resource_group_name" {
 
 variable "location" {
   type    = string
-  default = "japaneast" 
+  default = "japaneast"
 }
 
-# Fix Lỗi 3: Tên ACR chuẩn hóa
 variable "acr_name" {
   type    = string
-  default = "chillphimacr2026phat" # Thêm định danh để tránh trùng global
+  default = "chillphimacr2026phat"
 }
 
 variable "aks_name" {
@@ -26,5 +25,5 @@ variable "kubernetes_version" {
 
 variable "node_size" {
   type    = string
-  default = "standard_d2s_v3"
+  default = "Standard_D2s_v3"
 }
