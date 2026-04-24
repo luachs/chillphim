@@ -26,5 +26,5 @@ variable "kubernetes_version" {
 
 variable "node_size" {
   type    = string
-  default = "Standard_B2s"
+  default = "standard_d2s_v3"
 }
