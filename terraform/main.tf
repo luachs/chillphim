@@ -68,8 +68,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = "chillphimaks"
-  oidc_issuer_enabled       = true
-  workload_identity_enabled = true # Khuyên dùng kèm để demo chuyên nghiệp hơn
   
   ingress_application_gateway {
     gateway_name = "chillphim-appgw"
