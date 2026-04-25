@@ -44,3 +44,25 @@ spec:
                 secretKeyRef:
                   name: chillphim-secrets
                   key: CLOUDINARY_API_SECRET
+
+          # --- PHẦN THIẾT LẬP HEALTH CHECK ---
+
+          # Liveness Probe: Kiểm tra xem container có bị "treo" không.
+          # Nếu sau 3 lần thử mà không phản hồi, K8s sẽ tự restart Pod.
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30 # Đợi 30s để Next.js sẵn sàng hoàn toàn
+            periodSeconds: 20 # Kiểm tra mỗi 20s một lần
+            timeoutSeconds: 5 # Sau 5s không phản hồi coi như fail
+
+          # Readiness Probe: Kiểm tra xem app đã sẵn sàng nhận traffic chưa.
+          # Khi chưa Ready, traffic từ Internet sẽ không được đẩy vào Pod này.
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 15 # Có thể kiểm tra sớm hơn Liveness
+            periodSeconds: 10 # Kiểm tra thường xuyên để điều hướng khách
+            failureThreshold: 3 # Sai 3 lần liên tiếp mới coi là Not Ready
