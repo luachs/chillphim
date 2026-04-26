@@ -3,7 +3,7 @@
 **ChillPhim** là hệ thống quản lý phim trực tuyến được thiết kế theo tư duy Cloud-Native, tích hợp chặt chẽ quy trình DevOps hiện đại từ triển khai hạ tầng đến giám sát hiệu năng thực tế.
 
 **🌐 Live Demo:** [https://chillphim2026.duckdns.org](https://chillphim2026.duckdns.org)
-![System Architecture](./public/demo.jpg)
+![System Architecture](./src/public/demo.jpg)
 
 ---
 
@@ -11,7 +11,7 @@
 
 Hệ thống được vận hành trên Azure với sự hỗ trợ của mô hình **Infrastructure as Code (IaC)**.
 
-![System Architecture](./public/architecture_system.jpg)
+![System Architecture](./src/public/architecture_system.jpg)
 
 ✨ **Key Features:**
 
@@ -34,10 +34,10 @@ Khả năng chịu tải được chứng minh qua các bài Stress Test thực 
 - **📉 Smart Resource Quota:** Thiết lập nghiêm ngặt `Requests` và `Limits` cho Pod, ngăn chặn hiện tượng lấn chiếm tài nguyên hệ thống.
 - **🚀 Efficient Recovery:** Hệ thống tự động giải phóng tài nguyên CPU/RAM và duy trì trạng thái ổn định ngay sau khi kết thúc đợt tải đỉnh điểm.
 
-![Cluster Monitoring](./public/monitoring1.png)
+![Cluster Monitoring](./src/public/monitoring1.png)
 _Giám sát tổng thể tài nguyên Cluster tại thời điểm Stress Test._
 
-![Pod Performance](./public/monitoring2.png)
+![Pod Performance](./src/public/monitoring2.png)
 _Chi tiết hiệu năng Pod ứng dụng khi xử lý tải 100 user đồng thời._
 
 ---
