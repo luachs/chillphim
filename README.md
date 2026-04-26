@@ -3,7 +3,7 @@
 **ChillPhim** là hệ thống quản lý phim trực tuyến được thiết kế theo tư duy Cloud-Native, tích hợp chặt chẽ quy trình DevOps hiện đại từ triển khai hạ tầng đến giám sát hiệu năng thực tế.
 
 **🌐 Live Demo:** [https://chillphim2026.duckdns.org](https://chillphim2026.duckdns.org)
-![System Architecture](./src/public/demo.jpg)
+![System Architecture](./src/public/demo.png)
 
 ---
 
